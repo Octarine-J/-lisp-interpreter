@@ -7,11 +7,11 @@
 
 class Parser {
 private:
-    std::vector<std::string> tokenize(std::string string);
+    std::vector<std::string> tokenize(const std::string &string) const;
 
-    std::shared_ptr<Expression> parse(std::vector<std::string> tokens);
+    std::shared_ptr<Expression> parse(const std::vector<std::string> &tokens) const;
 public:
-    std::shared_ptr<Expression> parse(std::string string);
+    std::shared_ptr<Expression> parse(const std::string &string) const;
 };
 
 

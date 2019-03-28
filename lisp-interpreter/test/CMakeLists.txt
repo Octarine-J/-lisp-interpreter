@@ -1,8 +1,8 @@
 set(
     TESTS
-        "src/main.cc"
-        "src/parser_test.cc"
-)
+        src/main.cc
+        src/parser_test.cc
+        src/interpreter_test.cc)
 
 add_executable(tests ${TESTS})
 

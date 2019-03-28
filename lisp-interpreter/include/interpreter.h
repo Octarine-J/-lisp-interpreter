@@ -3,12 +3,17 @@
 
 #include <string>
 #include <vector>
-#include "expressions.h"
+#include "parser.h"
 
 class Interpreter {
 private:
-    Expression parse(std::vector<std::string> tokens);
-    std::vector<std::string> tokenize(std::string string);
+    Parser parser;
+public:
+    Interpreter(Parser p) : parser(p) {}
+
+    std::shared_ptr<EvaluatedExpression> eval(const std::string& string) {
+        return parser.parse(string)->eval();
+    }
 };
 
 #endif

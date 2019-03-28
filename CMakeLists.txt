@@ -3,6 +3,8 @@ project(LispInterpreter LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
+include_directories(include)
+
 # libraries
 add_subdirectory(googletest)
 
