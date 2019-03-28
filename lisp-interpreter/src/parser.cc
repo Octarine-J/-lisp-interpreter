@@ -1,7 +1,7 @@
 #include <stack>
-#include "parse.h"
+#include "parser.h"
 
-Expression parse(std::vector<std::string> tokens) {
+std::shared_ptr<Expression> Parser::parse(std::vector<std::string> tokens) {
     if (tokens.empty()) {
         throw std::runtime_error("empty expression");
     }
@@ -31,10 +31,10 @@ Expression parse(std::vector<std::string> tokens) {
         }
     }
 
-    return *currentExpression;
+    return currentExpression;
 }
 
-std::vector<std::string> tokenize(std::string string) {
+std::vector<std::string> Parser::tokenize(std::string string) {
     std::vector<std::string> tokens;
     std::string acc;
     for (char c : string) {
@@ -58,4 +58,8 @@ std::vector<std::string> tokenize(std::string string) {
         }
     }
     return tokens;
+}
+
+std::shared_ptr<Expression> Parser::parse(std::string string) {
+    return parse(tokenize(string));
 }

@@ -1,7 +1,11 @@
 cmake_minimum_required(VERSION 3.12)
-project(lisp_interpretator)
+project(LispInterpreter LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
-add_executable(lisp_interpretator
-        main.cc expressions.cpp expressions.h eval_expressions.cpp eval_expressions.h parse.cpp parse.h)
+# libraries
+add_subdirectory(googletest)
+
+# main project
+add_subdirectory(lisp-interpreter)
+
