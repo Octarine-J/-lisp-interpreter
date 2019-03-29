@@ -4,8 +4,12 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "interpreter.h"
 
 class EvaluatedExpression {
+private:
+    std::shared_ptr<Interpreter> interpreter;
+
 public:
     virtual std::shared_ptr<EvaluatedExpression> apply(std::vector<std::shared_ptr<EvaluatedExpression>> args) const = 0;
     virtual std::string toString() const = 0;
@@ -46,21 +50,12 @@ public:
     Symbol(std::string val) : value(std::move(val)) {}
 
     virtual std::shared_ptr<EvaluatedExpression> apply(std::vector<std::shared_ptr<EvaluatedExpression>> args) const override {
-        if (value == "+") {
-            double sum = 0;
-            for (auto arg : convertToNumericArgs(args)) {
-                sum += arg;
-            }
-            return std::make_shared<Number>(sum);
-        } else if (value == "*") {
-            double product = 1;
-            for (auto arg : convertToNumericArgs(args)) {
-                product *= arg;
-            }
-            return std::make_shared<Number>(product);
-        } else {
-            throw std::runtime_error("unknown applicative: " + value);
-        }
+      auto env = interpreter->getEnv();
+      auto pos = env.find(value);
+      if (pos == env.end()) {
+	  throw std::runtime_error("unknown applicative: " + value);
+      }
+      return pos->second();
     };
 
     virtual std::string toString() const override {
