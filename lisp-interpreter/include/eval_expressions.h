@@ -1,15 +1,17 @@
 #ifndef LISP_INTERPRETER_EVAL_EXPRESSIONS_H
 #define LISP_INTERPRETER_EVAL_EXPRESSIONS_H
 
+#include <map>
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
-#include "interpreter.h"
+
+class EvaluatedExpression;
+extern std::map<std::string, std::function<std::shared_ptr<EvaluatedExpression>(std::vector < std::shared_ptr < EvaluatedExpression >> args)>> env;
+
 
 class EvaluatedExpression {
-private:
-    std::shared_ptr<Interpreter> interpreter;
-
 public:
     virtual std::shared_ptr<EvaluatedExpression> apply(std::vector<std::shared_ptr<EvaluatedExpression>> args) const = 0;
     virtual std::string toString() const = 0;
@@ -50,12 +52,12 @@ public:
     Symbol(std::string val) : value(std::move(val)) {}
 
     virtual std::shared_ptr<EvaluatedExpression> apply(std::vector<std::shared_ptr<EvaluatedExpression>> args) const override {
-      auto env = interpreter->getEnv();
-      auto pos = env.find(value);
-      if (pos == env.end()) {
-	  throw std::runtime_error("unknown applicative: " + value);
-      }
-      return pos->second();
+        auto pos = env.find(value);
+        if (pos == env.end()) {
+            throw std::runtime_error("unknown applicative: " + value);
+        }
+
+        return pos->second(args);
     };
 
     virtual std::string toString() const override {
