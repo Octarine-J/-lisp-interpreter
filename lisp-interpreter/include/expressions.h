@@ -9,8 +9,12 @@ class Expression {
 private:
     std::vector<std::shared_ptr<Expression>> subexpressions;
 public:
-    void addExpression(const std::shared_ptr<Expression> &expression) {
+    void add(const std::shared_ptr<Expression> &expression) {
         subexpressions.push_back(expression);
+    }
+
+    bool empty() const {
+        return subexpressions.empty();
     }
 
     virtual std::shared_ptr<EvaluatedExpression> eval() const {

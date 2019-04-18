@@ -20,3 +20,30 @@ TEST_F(ParserTest, TestParseExpressions) {
 
     ASSERT_EQ(parse("(* (+ 2.3 0.2) 2)"), "Expr< * Expr< + 2.3 0.2 > 2 >");
 }
+
+TEST_F(ParserTest, TestParseEmpty) {
+    ASSERT_THROW(parse(""), parser_error);
+    ASSERT_THROW(parse("()"), parser_error);
+    ASSERT_THROW(parse("( )"), parser_error);
+    ASSERT_THROW(parse("(    )"), parser_error);
+}
+
+TEST_F(ParserTest, TestParseEmptySubexpression) {
+    ASSERT_THROW(parse("(+ 3 ())"), parser_error);
+    ASSERT_THROW(parse("(+ () 3)"), parser_error);
+    ASSERT_THROW(parse("(+ 3 4 5 (* 2 (+ 3 ()) ) )"), parser_error);
+}
+
+TEST_F(ParserTest, TestParseUnmatchedClosedParenthesis) {
+    ASSERT_THROW(parse(")"), parser_error);
+    ASSERT_THROW(parse("())"), parser_error);
+    ASSERT_THROW(parse("(+ 3 5) )"), parser_error);
+    ASSERT_THROW(parse("(+ (+ 3 5) ) 4)"), parser_error);
+}
+
+TEST_F(ParserTest, TestParseUnmatchedOpenParenthesis) {
+    ASSERT_THROW(parse("("), parser_error);
+    ASSERT_THROW(parse("(()"), parser_error);
+    ASSERT_THROW(parse("(+ 3 5"), parser_error);
+    ASSERT_THROW(parse("(+ (+ 3 5) ) 4"), parser_error);
+}

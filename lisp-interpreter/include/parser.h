@@ -11,7 +11,23 @@ private:
 
     std::shared_ptr<Expression> parse(const std::vector<std::string> &tokens) const;
 public:
-    std::shared_ptr<Expression> parse(const std::string &string) const;
+    inline std::shared_ptr<Expression> parse(const std::string &string) const {
+        return parse(tokenize(string));
+    }
+};
+
+class parser_error : public std::runtime_error {
+public:
+    parser_error(int pos, const std::string &message) :
+        runtime_error(get_description(pos, message)) {
+    }
+
+    const char* get_description(int pos, const std::string &message) const {
+        std::string result = "Parser error at pos ";
+        result += std::to_string(pos) + ": ";
+        result += message;
+        return result.c_str();
+    }
 };
 
 
