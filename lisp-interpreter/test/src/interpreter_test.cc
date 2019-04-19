@@ -3,16 +3,10 @@
 
 class InterpreterTest : public testing::Test {
 private:
-    std::shared_ptr<Interpreter> interpreter;
+    Interpreter interpreter = Interpreter(Parser());
 public:
-
-    InterpreterTest() {
-        Parser parser;
-        interpreter = std::make_shared<Interpreter>(parser);
-    }
-
     std::string eval(const std::string &string) {
-        return interpreter->eval(string)->toString();
+        return interpreter.eval(string)->get_value();
     }
 
     double evalNum(const std::string &string) {

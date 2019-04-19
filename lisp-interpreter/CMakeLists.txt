@@ -1,9 +1,10 @@
 set(
     SOURCES
         src/expressions.cc
-        src/eval_expressions.cc
         src/parser.cc
-        src/interpreter.cc)
+        src/interpreter.cc
+        src/tree.cc
+)
 
 add_library(lisp_interpreter ${SOURCES})
 

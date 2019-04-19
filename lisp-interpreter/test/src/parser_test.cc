@@ -6,7 +6,7 @@ private:
     Parser parser;
 public:
     std::string parse(const std::string &string) {
-        return parser.parse(string)->toString();
+        return toString(parser.parse(string));
     }
 };
 

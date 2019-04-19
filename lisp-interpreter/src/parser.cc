@@ -29,7 +29,7 @@ std::shared_ptr<Expression> Parser::parse(const std::vector<std::string> &tokens
                 throw parser_error(i, "closed parenthesis outside of an expression");
             }
 
-            if (current_expression->empty()) {
+            if (current_expression->is_leaf()) {
                 throw parser_error(i, "empty expression");
             }
 
@@ -40,15 +40,15 @@ std::shared_ptr<Expression> Parser::parse(const std::vector<std::string> &tokens
             }
 
             auto previous_expression = expression_stack.top();
-            previous_expression->add(current_expression);
+            previous_expression->add_child(current_expression);
             current_expression = previous_expression;
         } else {
-            auto token = std::make_shared<Token>(tokens[i]);
-            current_expression->add(token);
+            auto token = std::make_shared<Expression>(tokens[i]);
+            current_expression->add_child(token);
         }
     }
 
-    if (current_expression == nullptr || current_expression->empty()) {
+    if (current_expression == nullptr || current_expression->is_leaf()) {
         throw parser_error(num_tokens - 1, "empty expression");
     }
 
