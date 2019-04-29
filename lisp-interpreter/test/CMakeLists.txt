@@ -2,7 +2,8 @@ set(
     TESTS
         src/main.cc
         src/parser_test.cc
-        src/interpreter_test.cc)
+        src/interpreter_test.cc
+        src/expression_test.cpp)
 
 add_executable(tests ${TESTS})
 

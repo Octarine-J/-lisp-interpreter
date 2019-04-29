@@ -1,6 +1,7 @@
 #ifndef LISPINTERPRETER_TREE_H
 #define LISPINTERPRETER_TREE_H
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -13,7 +14,7 @@ private:
 public:
     Tree() = default;
 
-    Tree(T val) : value(val) {}
+    explicit Tree(T val) : value(val) {}
 
     decltype(children) get_children() const {
         return children;
