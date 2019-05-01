@@ -6,7 +6,7 @@ private:
     Interpreter interpreter = Interpreter(Parser());
 public:
     std::string eval(const std::string &string) {
-        return interpreter.eval(string)->get_value();
+        return interpreter.eval(string).get_value();
     }
 
     double evalNum(const std::string &string) {

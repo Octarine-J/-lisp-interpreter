@@ -9,7 +9,7 @@
  * @param tokens - Lisp program tokens
  * @return the top-level expression
  */
-std::shared_ptr<Expression> Parser::parse(const std::vector<std::string> &tokens) const {
+Expression Parser::parse(const std::vector<std::string> &tokens) const {
     if (tokens.empty()) {
         throw parser_error(0, "empty expression");
     }
@@ -40,10 +40,10 @@ std::shared_ptr<Expression> Parser::parse(const std::vector<std::string> &tokens
             }
 
             auto previous_expression = expression_stack.top();
-            previous_expression->add_child(current_expression);
+            previous_expression->add_child(*current_expression);
             current_expression = previous_expression;
         } else {
-            auto token = std::make_shared<Expression>(tokens[i]);
+            auto token = Expression(tokens[i]);
             current_expression->add_child(token);
         }
     }
@@ -56,7 +56,7 @@ std::shared_ptr<Expression> Parser::parse(const std::vector<std::string> &tokens
         throw parser_error(num_tokens - 1, "premature end of an expression");
     }
 
-    return current_expression;
+    return *current_expression;
 }
 
 /**

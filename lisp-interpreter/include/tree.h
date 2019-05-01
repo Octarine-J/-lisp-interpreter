@@ -10,21 +10,21 @@ template <class T>
 class Tree : public std::enable_shared_from_this<Tree<T>> {
 private:
     T value;
-    std::vector<std::shared_ptr<Tree>> children;
+    std::vector<Tree> children;
 public:
     Tree() = default;
 
     explicit Tree(T val) : value(val) {}
 
-    decltype(children) get_children() const {
+    const std::vector<Tree>& get_children() const {
         return children;
     }
 
-    decltype(value) get_value() const {
+    T get_value() const {
         return value;
     }
 
-    void add_child(const std::shared_ptr<Tree> &node) {
+    void add_child(const Tree &node) {
         children.push_back(node);
     }
 
