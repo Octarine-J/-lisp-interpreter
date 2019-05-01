@@ -1,3 +1,4 @@
+#include <memory>
 #include <stack>
 #include "parser.h"
 

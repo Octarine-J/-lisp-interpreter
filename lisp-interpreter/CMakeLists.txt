@@ -3,7 +3,6 @@ set(
         src/expressions.cc
         src/parser.cc
         src/interpreter.cc
-        src/tree.cc
 )
 
 add_library(lisp_interpreter ${SOURCES})

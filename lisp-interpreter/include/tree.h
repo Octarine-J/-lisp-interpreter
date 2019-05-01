@@ -1,13 +1,11 @@
-#ifndef LISPINTERPRETER_TREE_H
-#define LISPINTERPRETER_TREE_H
+#ifndef LISP_INTERPRETER_TREE_H
+#define LISP_INTERPRETER_TREE_H
 
 #include <functional>
-#include <memory>
-#include <string>
 #include <vector>
 
 template <class T>
-class Tree : public std::enable_shared_from_this<Tree<T>> {
+class Tree {
 private:
     T value;
     std::vector<Tree> children;
@@ -32,27 +30,25 @@ public:
         return children.empty();
     }
 
-    T dfs(const std::function<T(const T &acc, const std::shared_ptr<Tree> &node)> &f,
-          const std::function<T(const T &acc)> &onLevel,
-          const T &default_value) const {
-        T result = default_value;
-        return dfs(this->shared_from_this(), f, onLevel, result);
+    template <class V>
+    V dfs_fold(const std::function<V(const V &acc, const Tree &node)> &f,
+               const V &default_value) const {
+        V result = default_value;
+        return dfs_fold(this, f, result);
     }
 
 private:
-    T dfs(const std::shared_ptr<const Tree> &root,
-          const std::function<T(const T &acc, const std::shared_ptr<Tree> &node)> &f,
-          const std::function<T(const T &acc)> &onLevel,
-          T &acc) const {
+    template <class V>
+    V dfs_fold(const Tree *root,
+               const std::function<V(const V &acc, const Tree &node)> &f,
+               V &acc) const {
+        acc = f(acc, *root);
 
         for (const auto &node : root->children) {
-            if (node->is_leaf()) {
-                acc = f(acc, node);
-            } else {
-                acc = dfs(node, f, onLevel, acc);
-            }
+            acc = dfs_fold(&node, f, acc);
         }
-        return onLevel(acc);
+
+        return acc;
     }
 };
 

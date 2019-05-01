@@ -3,6 +3,11 @@
 
 class TreeTest : public testing::Test {
 
+public:
+    // used to test dfs_fold
+    static std::string to_string(const std::string &acc, const Tree<int> &node) {
+        return acc + std::to_string(node.get_value()) + " ";
+    }
 };
 
 TEST_F(TreeTest, TestCreateEmpty) {
@@ -51,4 +56,30 @@ TEST_F(TreeTest, TestCreateTwoLayers) {
     ASSERT_EQ(2, first_grandchild.get_value());
     ASSERT_TRUE(second_grandchild.is_leaf());
     ASSERT_EQ(5, second_grandchild.get_value());
+}
+
+TEST_F(TreeTest, TestDFS) {
+    Tree<int> first_node {4};
+    first_node.add_child(Tree<int>{2});
+    first_node.add_child(Tree<int>{5});
+
+    Tree<int> second_node {3};
+    second_node.add_child(Tree<int>{8});
+    second_node.add_child(Tree<int>{7});
+
+    Tree<int> tree {9};
+    tree.add_child(first_node);
+    tree.add_child(second_node);
+
+    auto result = tree.dfs_fold<std::string>(to_string, std::string {});
+
+    ASSERT_EQ(result, "9 4 2 5 3 8 7 ");
+}
+
+TEST_F(TreeTest, TestDFSSingleNode) {
+    Tree<int> tree {4};
+
+    auto result = tree.dfs_fold<std::string>(to_string, std::string {});
+
+    ASSERT_EQ(result, "4 ");
 }
