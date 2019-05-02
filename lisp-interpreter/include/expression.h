@@ -5,6 +5,6 @@
 
 using Expression = Tree<std::string>;
 
-std::string toString(const Expression &expression);
+std::string to_string(const Expression &expression);
 
 #endif

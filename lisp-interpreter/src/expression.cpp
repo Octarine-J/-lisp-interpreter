@@ -1,6 +1,6 @@
-#include "expressions.h"
+#include "expression.h"
 
-std::string toString(const Expression &expression) {
+std::string to_string(const Expression &expression) {
     if (expression.is_leaf()) {
         return expression.get_value();
     }
@@ -8,7 +8,7 @@ std::string toString(const Expression &expression) {
     std::string result = "Expr< ";
 
     for (const auto &child : expression.get_children()) {
-        result += toString(child) + " ";
+        result += to_string(child) + " ";
     }
 
     result += ">";

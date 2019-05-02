@@ -1,6 +1,6 @@
 set(
     SOURCES
-        src/expressions.cc
+        src/expression.cpp
         src/parser.cc
         src/interpreter.cc
 )

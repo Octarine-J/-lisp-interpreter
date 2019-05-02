@@ -14,6 +14,13 @@ public:
 
     explicit Tree(T val) : value(val) {}
 
+    Tree(const std::initializer_list<Tree> &nodes) {
+        this->children = std::vector<Tree> {};
+        for (const auto &node : nodes) {
+            this->children.push_back(node);
+        }
+    }
+
     const std::vector<Tree>& get_children() const {
         return children;
     }
@@ -24,6 +31,12 @@ public:
 
     void add_child(const Tree &node) {
         children.push_back(node);
+    }
+
+    void add_children(std::initializer_list<Tree> nodes) {
+        for (const auto &node : nodes) {
+            add_child(node);
+        }
     }
 
     bool is_leaf() const {
