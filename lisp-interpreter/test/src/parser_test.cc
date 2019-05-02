@@ -1,4 +1,4 @@
-#include "gmock/gmock.h"
+#include <gmock/gmock.h>
 #include "parser.h"
 
 class ParserTest : public testing::Test {
@@ -9,6 +9,10 @@ public:
         return to_string(parser.parse(string));
     }
 };
+
+TEST_F(ParserTest, ParseSingleNumber) {
+    ASSERT_EQ("333", parse("333"));
+}
 
 TEST_F(ParserTest, TestParseExpressions) {
     ASSERT_EQ(parse("(+ 30 5 12)"), "Expr< + 30 5 12 >");

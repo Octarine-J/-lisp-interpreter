@@ -1,5 +1,4 @@
-set(
-    SOURCES
+set(SOURCES
         src/expression.cpp
         src/parser.cc
         src/interpreter.cc

@@ -1,7 +1,8 @@
 set(TESTS
         src/main.cc
         src/parser_test.cc
-        src/interpreter_test.cc
+        src/interpreter_test.cpp
+        src/tokenizer_test.cpp
         src/expression_test.cpp
         src/tree_test.cpp
 )

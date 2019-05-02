@@ -15,10 +15,7 @@ public:
     explicit Tree(T val) : value(val) {}
 
     Tree(const std::initializer_list<Tree> &nodes) {
-        this->children = std::vector<Tree> {};
-        for (const auto &node : nodes) {
-            this->children.push_back(node);
-        }
+        add_children(nodes);
     }
 
     const std::vector<Tree>& get_children() const {

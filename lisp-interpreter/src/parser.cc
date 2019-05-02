@@ -12,52 +12,63 @@
  */
 Expression Parser::parse(const std::vector<std::string> &tokens) const {
     if (tokens.empty()) {
-        throw parser_error(0, "empty expression");
+        throw parser_error(ParseErrorType::EmptyExpression);
     }
 
-    std::stack<std::shared_ptr<Expression>> expression_stack;
-    std::shared_ptr<Expression> current_expression;
+    std::stack<Expression> expression_stack;
+    std::optional<Expression> result_expression;
 
-    auto num_tokens = tokens.size();
-
-    for (size_t i = 0; i < num_tokens - 1; ++i) {
-        if (tokens[i] == "(") {
-            auto expression = std::make_shared<Expression>();
-            expression_stack.push(expression);
-            current_expression = expression;
-        } else if (tokens[i] == ")") {
+    for (const auto &token : tokens) {
+        if (token == "(") {
+            if (result_expression.has_value()) {
+                throw parser_error(ParseErrorType::TokenOutsideExpression);
+            }
+            expression_stack.push(Expression {});
+        } else if (token == ")") {
             if (expression_stack.empty()) {
-                throw parser_error(i, "closed parenthesis outside of an expression");
+                throw parser_error(ParseErrorType::UnmatchedClosedParenthesis);
             }
 
-            if (current_expression->is_leaf()) {
-                throw parser_error(i, "empty expression");
+            auto child_expression = expression_stack.top();
+            if (child_expression.is_leaf()) {
+                throw parser_error(ParseErrorType::EmptyExpression);
             }
 
             expression_stack.pop();
 
             if (expression_stack.empty()) {
-                throw parser_error(i, "closed parenthesis outside of an expression");
+                if (result_expression.has_value()) {
+                    throw parser_error(ParseErrorType::TokenOutsideExpression);
+                } else {
+                    result_expression.emplace(child_expression);
+                }
+            } else {
+                expression_stack.top().add_child(child_expression);
             }
 
-            auto previous_expression = expression_stack.top();
-            previous_expression->add_child(*current_expression);
-            current_expression = previous_expression;
+
         } else {
-            auto token = Expression(tokens[i]);
-            current_expression->add_child(token);
+            if (expression_stack.empty()) {
+                if (result_expression.has_value()) {
+                    throw parser_error(ParseErrorType::TokenOutsideExpression);
+                } else {
+                    result_expression.emplace(Expression {token});
+                }
+            } else {
+                expression_stack.top().add_child(Expression {token});
+            }
         }
     }
 
-    if (current_expression == nullptr || current_expression->is_leaf()) {
-        throw parser_error(num_tokens - 1, "empty expression");
+    if (expression_stack.empty()) {
+        if (result_expression.has_value()) {
+            return result_expression.value();
+        } else {
+            throw parser_error(ParseErrorType::TokenOutsideExpression);
+        }
+    } else {
+        throw parser_error(ParseErrorType::PrematureEndOfExpression);
     }
-
-    if (tokens[num_tokens - 1] != ")" || expression_stack.size() != 1) {
-        throw parser_error(num_tokens - 1, "premature end of an expression");
-    }
-
-    return *current_expression;
 }
 
 /**
@@ -81,6 +92,8 @@ std::vector<std::string> Parser::tokenize(const std::string &string) const {
                 tokens.emplace_back(1, c);
                 break;
             case ' ':
+            case '\n':
+            case '\t':
                 if (!acc.empty()) {
                     tokens.push_back(acc);
                     acc.clear();
@@ -92,7 +105,7 @@ std::vector<std::string> Parser::tokenize(const std::string &string) const {
     }
 
     if (!acc.empty()) {
-        throw parser_error(string.size() - 1, "premature end of an expression");
+        tokens.push_back(acc);
     }
 
     return tokens;
