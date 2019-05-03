@@ -1,6 +1,6 @@
 #include <memory>
 #include <stack>
-#include "parser.h"
+#include "parser/parser.h"
 
 /**
  * Converts a vector of tokens into a Lisp expression,

@@ -1,4 +1,4 @@
-#include "tokenizer.h"
+#include "parser/tokenizer.h"
 
 /**
  * Splits a string into tokens.

@@ -1,4 +1,4 @@
-#include "interpreter.h"
+#include "interpreter/interpreter.h"
 
 void Interpreter::loadStdLib() {
     registerFunction("+", [this](std::vector<Expression> args) {

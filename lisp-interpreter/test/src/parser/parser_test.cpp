@@ -1,5 +1,5 @@
 #include <gmock/gmock.h>
-#include "parser.h"
+#include "parser/parser.h"
 
 using namespace ::testing;
 

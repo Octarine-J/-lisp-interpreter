@@ -1,5 +1,5 @@
 #include <gmock/gmock.h>
-#include "interpreter.h"
+#include "interpreter/interpreter.h"
 
 using namespace ::testing;
 
@@ -19,6 +19,14 @@ public:
 
 TEST_F(InterpreterTest, SingleNumber) {
     EXPECT_THAT(eval_num("486"), Eq(486));
+}
+
+TEST_F(InterpreterTest, ArithmeticTwoArgs) {
+    EXPECT_THAT(eval_num("(+ 137 349)"), Eq(486));
+    EXPECT_THAT(eval_num("(+ 2.7 10)"), Eq(12.7));
+    EXPECT_THAT(eval_num("(- 1000 400)"), Eq(600));
+    EXPECT_THAT(eval_num("(* 5 99)"), Eq(495));
+    EXPECT_THAT(eval_num("(/ 10 5)"), Eq(2));
 }
 
 TEST_F(InterpreterTest, TestEval) {

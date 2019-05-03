@@ -1,10 +1,10 @@
 set(TESTS
         src/main.cpp
-        src/parser_test.cpp
-        src/interpreter_test.cpp
-        src/tokenizer_test.cpp
-        src/expression_test.cpp
-        src/tree_test.cpp
+        src/parser/parser_test.cpp
+        src/interpreter/interpreter_test.cpp
+        src/parser/tokenizer_test.cpp
+        src/parser/expression_test.cpp
+        src/parser/tree_test.cpp
 )
 
 add_executable(tests ${TESTS})

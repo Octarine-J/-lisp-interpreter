@@ -1,5 +1,5 @@
 #include <gmock/gmock.h>
-#include "tree.h"
+#include "parser/tree.h"
 
 using namespace ::testing;
 

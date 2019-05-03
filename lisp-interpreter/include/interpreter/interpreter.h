@@ -5,7 +5,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "parser.h"
+#include "parser/parser.h"
 
 class Interpreter {
 private:
