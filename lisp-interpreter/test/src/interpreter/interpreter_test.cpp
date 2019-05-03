@@ -29,7 +29,17 @@ TEST_F(InterpreterTest, ArithmeticTwoArgs) {
     EXPECT_THAT(eval_num("(/ 10 5)"), Eq(2));
 }
 
-TEST_F(InterpreterTest, TestEval) {
-    EXPECT_THAT(eval_num("(+ 30 5 12)"), Eq(47));
-    EXPECT_THAT(eval_num("(* (+ 2.3 0.2) 2)"), Eq(5));
+TEST_F(InterpreterTest, ArithmeticMultipleArgs) {
+    EXPECT_THAT(eval_num("(+ 21 35 12 7)"), Eq(75));
+    EXPECT_THAT(eval_num("(* 25 4 12)"), Eq(1200));
+}
+
+TEST_F(InterpreterTest, ArithmeticNested) {
+    EXPECT_THAT(eval_num("(+ (* 3 5) (- 10 6))"), Eq(19));
+    EXPECT_THAT(eval_num("(+ (* 3 (+ (* 2 4) (+ 3 5))) (+ (- 10 7) 6))"), Eq(57));
+}
+
+TEST_F(InterpreterTest, DefineVariable) {
+    EXPECT_THAT(eval("(define size 2)"), Eq("size"));
+    EXPECT_THAT(eval("size"), Eq("2"));
 }
