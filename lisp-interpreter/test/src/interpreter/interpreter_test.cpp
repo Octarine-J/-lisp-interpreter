@@ -8,11 +8,15 @@ private:
     Interpreter interpreter {Parser {Tokenizer {}}};
 public:
     std::string eval(const std::string &string) {
-        return interpreter.eval(string).get_value();
+        return interpreter.eval(string).to_string();
     }
 
     double eval_num(const std::string &string) {
-        return std::stod(eval(string));
+        auto result = interpreter.eval(string);
+
+        EXPECT_TRUE(result.is_number());
+
+        return result.get_number();
     }
 };
 
@@ -41,5 +45,5 @@ TEST_F(InterpreterTest, ArithmeticNested) {
 
 TEST_F(InterpreterTest, DefineVariable) {
     EXPECT_THAT(eval("(define size 2)"), Eq("size"));
-    EXPECT_THAT(eval("size"), Eq("2"));
+    EXPECT_THAT(eval_num("size"), Eq(2));
 }
