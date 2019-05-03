@@ -1,7 +1,9 @@
 #include <gmock/gmock.h>
 #include "tree.h"
 
-class TreeTest : public testing::Test {
+using namespace ::testing;
+
+class TreeTest : public Test {
 
 public:
     // used to test dfs_fold
@@ -12,13 +14,13 @@ public:
 
 TEST_F(TreeTest, TestCreateEmpty) {
     Tree<int> tree;
-    ASSERT_TRUE(tree.is_leaf());
+    EXPECT_TRUE(tree.is_leaf());
 }
 
 TEST_F(TreeTest, TestCreateSingleNode) {
     Tree<int> tree {3};
-    ASSERT_EQ(3, tree.get_value());
-    ASSERT_TRUE(tree.is_leaf());
+    EXPECT_THAT(tree.get_value(), Eq(3));
+    EXPECT_TRUE(tree.is_leaf());
 }
 
 TEST_F(TreeTest, TestCreateSingleLayer) {
@@ -26,11 +28,11 @@ TEST_F(TreeTest, TestCreateSingleLayer) {
     tree.add_child(Tree<int> {3});
     tree.add_child(Tree<int> {4});
 
-    ASSERT_FALSE(tree.is_leaf());
+    EXPECT_FALSE(tree.is_leaf());
 
     auto children = tree.get_children();
-    ASSERT_EQ(3, children[0].get_value());
-    ASSERT_EQ(4, children[1].get_value());
+    EXPECT_THAT(children[0].get_value(), Eq(3));
+    EXPECT_THAT(children[1].get_value(), Eq(4));
 }
 
 TEST_F(TreeTest, TestCreateTwoLayers) {
@@ -41,21 +43,21 @@ TEST_F(TreeTest, TestCreateTwoLayers) {
     Tree<int> tree;
     tree.add_child(first_node);
 
-    ASSERT_FALSE(tree.is_leaf());
+    EXPECT_FALSE(tree.is_leaf());
 
     auto children = tree.get_children();
     auto first_child = children[0];
 
-    ASSERT_FALSE(first_child.is_leaf());
+    EXPECT_FALSE(first_child.is_leaf());
 
     auto grandchildren = first_child.get_children();
     auto first_grandchild = grandchildren[0];
     auto second_grandchild = grandchildren[1];
 
-    ASSERT_TRUE(first_grandchild.is_leaf());
-    ASSERT_EQ(2, first_grandchild.get_value());
-    ASSERT_TRUE(second_grandchild.is_leaf());
-    ASSERT_EQ(5, second_grandchild.get_value());
+    EXPECT_TRUE(first_grandchild.is_leaf());
+    EXPECT_THAT(first_grandchild.get_value(), Eq(2));
+    EXPECT_TRUE(second_grandchild.is_leaf());
+    EXPECT_THAT(second_grandchild.get_value(), Eq(5));
 }
 
 TEST_F(TreeTest, TestDFS) {
@@ -73,7 +75,7 @@ TEST_F(TreeTest, TestDFS) {
 
     auto result = tree.dfs_fold<std::string>(to_string, std::string {});
 
-    ASSERT_EQ(result, "9 4 2 5 3 8 7 ");
+    EXPECT_THAT(result, Eq("9 4 2 5 3 8 7 "));
 }
 
 TEST_F(TreeTest, TestDFSSingleNode) {
@@ -81,5 +83,5 @@ TEST_F(TreeTest, TestDFSSingleNode) {
 
     auto result = tree.dfs_fold<std::string>(to_string, std::string {});
 
-    ASSERT_EQ(result, "4 ");
+    EXPECT_THAT(result, Eq("4 "));
 }

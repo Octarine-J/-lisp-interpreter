@@ -1,9 +1,11 @@
 #include <gmock/gmock.h>
 #include "interpreter.h"
 
-class InterpreterTest : public testing::Test {
+using namespace ::testing;
+
+class InterpreterTest : public Test {
 private:
-    Interpreter interpreter = Interpreter(Parser());
+    Interpreter interpreter {Parser {Tokenizer {}}};
 public:
     std::string eval(const std::string &string) {
         return interpreter.eval(string).get_value();
@@ -16,10 +18,10 @@ public:
 
 
 TEST_F(InterpreterTest, SingleNumber) {
-    ASSERT_EQ(486, eval_num("486"));
+    EXPECT_THAT(eval_num("486"), Eq(486));
 }
 
 TEST_F(InterpreterTest, TestEval) {
-    ASSERT_EQ(eval_num("(+ 30 5 12)"), 47);
-    ASSERT_EQ(eval_num("(* (+ 2.3 0.2) 2)"), 5);
+    EXPECT_THAT(eval_num("(+ 30 5 12)"), Eq(47));
+    EXPECT_THAT(eval_num("(* (+ 2.3 0.2) 2)"), Eq(5));
 }

@@ -6,10 +6,10 @@ using token_vec = std::vector<std::string>;
 
 class TokenizerTest : public Test {
 private:
-    Parser parser;
+    Tokenizer tokenizer;
 public:
     token_vec tokenize(const std::string &input) {
-        return parser.tokenize(input);
+        return tokenizer.tokenize(input);
     }
 };
 

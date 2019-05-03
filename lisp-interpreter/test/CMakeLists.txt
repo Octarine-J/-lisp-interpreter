@@ -1,6 +1,6 @@
 set(TESTS
-        src/main.cc
-        src/parser_test.cc
+        src/main.cpp
+        src/parser_test.cpp
         src/interpreter_test.cpp
         src/tokenizer_test.cpp
         src/expression_test.cpp
