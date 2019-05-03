@@ -168,9 +168,12 @@ EvaluatedExpression Interpreter::define(const std::vector<Expression> &input_arg
         throw EvalError(EvalErrorType::ExpectedSingleToken);
     }
 
-    auto variable_name = definition.get_value();
+    auto variable_name = eval(definition.get_value());
+    if (variable_name.is_number()) {
+        throw EvalError(EvalErrorType::ExpectedSymbolicArg, {"define", std::to_string(variable_name.get_number())});
+    }
 
-    define_variable(variable_name, eval(input_args[2]));
+    define_variable(variable_name.get_symbol(), eval(input_args[2]));
 
 //        register_function(definition.get_value(), [this](std::vector<Expression> args) {
 //            return eval(args[2]);

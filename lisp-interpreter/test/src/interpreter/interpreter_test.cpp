@@ -18,6 +18,17 @@ public:
 
         return result.get_number();
     }
+
+    void expect_error(const std::string &input, EvalErrorType expected_error_type) {
+        EXPECT_THROW({
+            try {
+                eval(input);
+            } catch(const EvalError& e) {
+                EXPECT_THAT(e.get_type(), Eq(expected_error_type));
+                throw;
+            }
+        }, EvalError);
+    }
 };
 
 
@@ -46,4 +57,17 @@ TEST_F(InterpreterTest, ArithmeticNested) {
 TEST_F(InterpreterTest, DefineVariable) {
     EXPECT_THAT(eval("(define size 2)"), Eq("size"));
     EXPECT_THAT(eval_num("size"), Eq(2));
+}
+
+TEST_F(InterpreterTest, DefineNumberShouldFail) {
+    expect_error("(define 4 2)", EvalErrorType::ExpectedSymbolicArg);
+}
+
+TEST_F(InterpreterTest, DefineTooFewArguments) {
+    expect_error("(define)", EvalErrorType::RequiredNArgsExactly);
+    expect_error("(define x)", EvalErrorType::RequiredNArgsExactly);
+}
+
+TEST_F(InterpreterTest, DefineTooManyArguments) {
+    expect_error("(define x 2 3)", EvalErrorType::RequiredNArgsExactly);
 }

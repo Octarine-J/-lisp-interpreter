@@ -9,6 +9,7 @@ enum class EvalErrorType {
     UnknownApplicative,
     NumberIsNotApplicative,
     ExpectedNumericArg,
+    ExpectedSymbolicArg,
     RequiredAtLeastOneArg,
     RequiredNArgsExactly,
     ExpectedSingleToken
@@ -20,6 +21,10 @@ private:
 public:
     explicit EvalError(EvalErrorType err_type, std::initializer_list<std::string> params = {}) :
             runtime_error(get_description(err_type, params)), error_type(err_type) {
+    }
+
+    EvalErrorType get_type() const {
+        return error_type;
     }
 
     const char* get_description(EvalErrorType errorType, std::initializer_list<std::string> params) const {
@@ -43,6 +48,9 @@ public:
                 break;
             case EvalErrorType ::ExpectedNumericArg:
                 ss << "Function '" << arg0 << "' expected a numeric argument, found '" << arg1 << "'";
+                break;
+            case EvalErrorType ::ExpectedSymbolicArg:
+                ss << "Function '" << arg0 << "' expected a symbolic argument, found number '" << arg1 << "'";
                 break;
             case EvalErrorType ::RequiredAtLeastOneArg:
                 ss << "Function '" << arg0 << "' requires at least one argument";
