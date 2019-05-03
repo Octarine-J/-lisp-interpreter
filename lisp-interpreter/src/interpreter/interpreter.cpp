@@ -4,10 +4,10 @@
 void Interpreter::load_core_lib() {
     register_function("+", [this](LispFunctionArgs args) {
         if (args.empty()) {
-            throw EvalError(EvalErrorType::RequiredAtLeastOneArg, {"+"});
+            throw eval_error::RequiredAtLeastOneArg("+");
         }
 
-        auto numeric_args = this->to_numeric_args(args);
+        auto numeric_args = this->to_numeric_args("+", args);
         double result = numeric_args[0];
 
         for (auto arg = numeric_args.begin() + 1; arg < numeric_args.end(); ++arg) {
@@ -19,10 +19,10 @@ void Interpreter::load_core_lib() {
 
     register_function("*", [this](LispFunctionArgs args) {
         if (args.empty()) {
-            throw EvalError(EvalErrorType::RequiredAtLeastOneArg, {"*"});
+            throw eval_error::RequiredAtLeastOneArg("*");
         }
 
-        auto numeric_args = this->to_numeric_args(args);
+        auto numeric_args = this->to_numeric_args("*", args);
         double result = numeric_args[0];
 
         for (auto arg = numeric_args.begin() + 1; arg < numeric_args.end(); ++arg) {
@@ -34,10 +34,10 @@ void Interpreter::load_core_lib() {
 
     register_function("-", [this](LispFunctionArgs args) {
         if (args.empty()) {
-            throw EvalError(EvalErrorType::RequiredAtLeastOneArg, {"-"});
+            throw eval_error::RequiredAtLeastOneArg("-");
         }
 
-        auto numeric_args = this->to_numeric_args(args);
+        auto numeric_args = this->to_numeric_args("-", args);
         double result = numeric_args[0];
 
         for (auto arg = numeric_args.begin() + 1; arg < numeric_args.end(); ++arg) {
@@ -49,10 +49,10 @@ void Interpreter::load_core_lib() {
 
     register_function("/", [this](LispFunctionArgs args) {
         if (args.empty()) {
-            throw EvalError(EvalErrorType::RequiredAtLeastOneArg, {"/"});
+            throw eval_error::RequiredAtLeastOneArg("/");
         }
 
-        auto numeric_args = this->to_numeric_args(args);
+        auto numeric_args = this->to_numeric_args("/", args);
         double result = numeric_args[0];
         double arg_product = 1;
 
@@ -72,13 +72,13 @@ void Interpreter::register_function(const std::string &name, LispFunction functi
 }
 
 
-std::vector<double> Interpreter::to_numeric_args(const std::vector<EvaluatedExpression> &args) const {
+std::vector<double> Interpreter::to_numeric_args(const std::string &function_name, const std::vector<EvaluatedExpression> &args) const {
     std::vector<double> result;
     result.reserve(args.size());
 
     for (const auto &arg : args) {
         if (arg.is_symbol()) {
-            throw EvalError(EvalErrorType::ExpectedNumericArg, {arg.get_symbol()});
+            throw eval_error::ExpectedNumericArg(function_name, arg.get_symbol());
         }
         result.push_back(arg.get_number());
     }
@@ -110,7 +110,7 @@ void Interpreter::define_variable(const std::string &name, const EvaluatedExpres
 
 EvaluatedExpression Interpreter::apply(const EvaluatedExpression &applicative, const std::vector<EvaluatedExpression> &args) {
     if (applicative.is_number()) {
-        throw EvalError(EvalErrorType::NumberIsNotApplicative, {std::to_string(applicative.get_number())});
+        throw eval_error::NumberIsNotApplicative(applicative.get_number());
     }
 
     auto function_name = applicative.get_symbol();
@@ -120,7 +120,7 @@ EvaluatedExpression Interpreter::apply(const EvaluatedExpression &applicative, c
         auto f = function.value();
         return f(args);
     } else {
-        throw EvalError(EvalErrorType::UnknownApplicative, {function_name});
+        throw eval_error::UnknownApplicative(function_name);
     }
 }
 
@@ -160,17 +160,17 @@ EvaluatedExpression Interpreter::eval_leaf(const std::string &value) {
 EvaluatedExpression Interpreter::define(const std::vector<Expression> &input_args) {
     if (input_args.size() != 3) {
         // expected (define name expr)
-        throw EvalError(EvalErrorType::RequiredNArgsExactly, {"define", "2"});
+        throw eval_error::RequiredNumArgsExactly("define", 2);
     }
 
     auto definition = input_args[1];
     if (!definition.is_leaf()) {
-        throw EvalError(EvalErrorType::ExpectedSingleToken);
+        throw eval_error::ExpectedSingleToken(definition);
     }
 
     auto variable_name = eval(definition.get_value());
     if (variable_name.is_number()) {
-        throw EvalError(EvalErrorType::ExpectedSymbolicArg, {"define", std::to_string(variable_name.get_number())});
+        throw eval_error::ExpectedSymbolicArg("define", variable_name.get_number());
     }
 
     define_variable(variable_name.get_symbol(), eval(input_args[2]));

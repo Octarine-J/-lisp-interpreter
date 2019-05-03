@@ -18,17 +18,6 @@ public:
 
         return result.get_number();
     }
-
-    void expect_error(const std::string &input, EvalErrorType expected_error_type) {
-        EXPECT_THROW({
-            try {
-                eval(input);
-            } catch(const EvalError& e) {
-                EXPECT_THAT(e.get_type(), Eq(expected_error_type));
-                throw;
-            }
-        }, EvalError);
-    }
 };
 
 
@@ -57,17 +46,27 @@ TEST_F(InterpreterTest, ArithmeticNested) {
 TEST_F(InterpreterTest, DefineVariable) {
     EXPECT_THAT(eval("(define size 2)"), Eq("size"));
     EXPECT_THAT(eval_num("size"), Eq(2));
+    EXPECT_THAT(eval_num("(* 5 size)"), Eq(10));
+}
+
+TEST_F(InterpreterTest, DefineMultipleVariables) {
+    eval("(define pi 3.14159)");
+    eval("(define radius 10)");
+    EXPECT_THAT(eval_num("(* pi (* radius radius))"), Eq(314.159));
+
+    eval("(define circumference (* 2 pi radius))");
+    EXPECT_THAT(eval_num("circumference"), Eq(62.8318));
 }
 
 TEST_F(InterpreterTest, DefineNumberShouldFail) {
-    expect_error("(define 4 2)", EvalErrorType::ExpectedSymbolicArg);
+    EXPECT_THROW(eval("(define 4 2)"), eval_error::ExpectedSymbolicArg);
 }
 
 TEST_F(InterpreterTest, DefineTooFewArguments) {
-    expect_error("(define)", EvalErrorType::RequiredNArgsExactly);
-    expect_error("(define x)", EvalErrorType::RequiredNArgsExactly);
+    EXPECT_THROW(eval("(define)"), eval_error::RequiredNumArgsExactly);
+    EXPECT_THROW(eval("(define x)"), eval_error::RequiredNumArgsExactly);
 }
 
 TEST_F(InterpreterTest, DefineTooManyArguments) {
-    expect_error("(define x 2 3)", EvalErrorType::RequiredNArgsExactly);
+    EXPECT_THROW(eval("(define x 2 3)"), eval_error::RequiredNumArgsExactly);
 }

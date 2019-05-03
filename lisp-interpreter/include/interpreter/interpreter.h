@@ -21,7 +21,7 @@ private:
     EvaluatedExpression eval(const Expression &expression);
     static EvaluatedExpression eval_leaf(const std::string &value);
 
-    std::vector<double> to_numeric_args(const std::vector<EvaluatedExpression> &args) const;
+    std::vector<double> to_numeric_args(const std::string &function_name, const std::vector<EvaluatedExpression> &args) const;
 
     void register_function(const std::string &name, LispFunction function);
 
