@@ -72,7 +72,7 @@ void Interpreter::register_function(const std::string &name, LispFunction functi
 }
 
 
-std::vector<double> Interpreter::to_numeric_args(const std::string &function_name, const std::vector<EvaluatedExpression> &args) const {
+std::vector<double> Interpreter::to_numeric_args(const std::string &function_name, const LispFunctionArgs &args) const {
     std::vector<double> result;
     result.reserve(args.size());
 
@@ -87,24 +87,14 @@ std::vector<double> Interpreter::to_numeric_args(const std::string &function_nam
 }
 
 std::optional<EvaluatedExpression> Interpreter::find_variable(const std::string &name) {
-    auto pos = variables.find(name);
-    if (pos == variables.end()) {
-        return std::nullopt;
-    } else {
-        return pos->second;
-    }
+    return find_in_context(variables, name);
 }
 
 std::optional<LispFunction> Interpreter::find_function(const std::string &name) {
-    auto pos = env.find(name);
-    if (pos == env.end()) {
-        return std::nullopt;
-    } else {
-        return pos->second;
-    }
+    return find_in_context(env, name);
 }
 
-void Interpreter::define_variable(const std::string &name, const EvaluatedExpression &expression) {
+void Interpreter::set_variable(const std::string &name, const EvaluatedExpression &expression) {
     variables.insert(std::make_pair(name, expression));
 }
 
@@ -164,20 +154,47 @@ EvaluatedExpression Interpreter::define(const std::vector<Expression> &input_arg
     }
 
     auto definition = input_args[1];
-    if (!definition.is_leaf()) {
-        throw eval_error::ExpectedSingleToken(definition);
+    if (definition.is_leaf()) {
+        return define_variable(definition, input_args[2]);
+    } else {
+        std::vector<Expression> args(input_args.cbegin() + 2, input_args.cend());
+        return define_function(definition, args);
     }
+}
 
-    auto variable_name = eval(definition.get_value());
+EvaluatedExpression Interpreter::define_variable(const Expression &lhs, const Expression &rhs) {
+    auto variable_name = eval(lhs.get_value());
     if (variable_name.is_number()) {
         throw eval_error::ExpectedSymbolicArg("define", variable_name.get_number());
     }
 
-    define_variable(variable_name.get_symbol(), eval(input_args[2]));
-
-//        register_function(definition.get_value(), [this](std::vector<Expression> args) {
-//            return eval(args[2]);
-//        });
+    set_variable(variable_name.get_symbol(), eval(rhs));
 
     return EvaluatedExpression {variable_name};
 }
+
+EvaluatedExpression Interpreter::define_function(const Expression &lhs, const std::vector<Expression> &args) {
+    auto lhs_children = lhs.get_children();
+    if (lhs_children.size() <= 1) {
+        throw eval_error::RequiredAtLeastOneArg("define (function)");
+    }
+
+    for (const auto &child : lhs_children) {
+        if (!child.is_leaf()) {
+            throw eval_error::ExpectedSingleToken(child);
+        }
+    }
+
+    auto function_name = lhs_children[0].get_value();
+
+    register_function(function_name, [this](LispFunctionArgs args) {
+
+
+        return EvaluatedExpression {1};
+
+        //return eval(args[2]);
+    });
+
+    return EvaluatedExpression {function_name};
+}
+

@@ -21,19 +21,31 @@ private:
     EvaluatedExpression eval(const Expression &expression);
     static EvaluatedExpression eval_leaf(const std::string &value);
 
-    std::vector<double> to_numeric_args(const std::string &function_name, const std::vector<EvaluatedExpression> &args) const;
-
-    void register_function(const std::string &name, LispFunction function);
+    std::vector<double> to_numeric_args(const std::string &function_name, const LispFunctionArgs &args) const;
 
     void load_core_lib();
 
     std::optional<EvaluatedExpression> find_variable(const std::string &name);
-    void define_variable(const std::string &name, const EvaluatedExpression &expression);
+    void set_variable(const std::string &name, const EvaluatedExpression &expression);
 
     std::optional<LispFunction> find_function(const std::string &name);
+    void register_function(const std::string &name, LispFunction function);
 
     EvaluatedExpression apply(const EvaluatedExpression &applicative, const std::vector<EvaluatedExpression> &args);
+
     EvaluatedExpression define(const std::vector<Expression> &input_args);
+    EvaluatedExpression define_variable(const Expression &lhs, const Expression &rhs);
+    EvaluatedExpression define_function(const Expression &lhs, const std::vector<Expression> &args);
+
+    template <class V>
+    std::optional<V> find_in_context(const std::map<std::string, V> context, const std::string &name) {
+        auto pos = context.find(name);
+        if (pos == context.end()) {
+            return std::nullopt;
+        } else {
+            return pos->second;
+        }
+    }
 
 public:
     explicit Interpreter(Parser p) : parser(p) {

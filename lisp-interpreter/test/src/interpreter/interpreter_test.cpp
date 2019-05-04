@@ -70,3 +70,7 @@ TEST_F(InterpreterTest, DefineTooFewArguments) {
 TEST_F(InterpreterTest, DefineTooManyArguments) {
     EXPECT_THROW(eval("(define x 2 3)"), eval_error::RequiredNumArgsExactly);
 }
+
+TEST_F(InterpreterTest, DefineFunction) {
+    EXPECT_THAT(eval("(define (square x) (x * x))"), Eq("square"));
+}

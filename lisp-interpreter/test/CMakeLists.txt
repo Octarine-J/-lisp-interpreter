@@ -1,11 +1,12 @@
 set(TESTS
         src/main.cpp
+        src/repl_test.cpp
         src/parser/parser_test.cpp
         src/interpreter/interpreter_test.cpp
         src/parser/tokenizer_test.cpp
         src/parser/expression_test.cpp
         src/parser/tree_test.cpp
-)
+        src/interpreter/eval_error_test.cpp)
 
 add_executable(tests ${TESTS})
 
