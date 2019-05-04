@@ -94,8 +94,8 @@ std::optional<LispFunction> Interpreter::find_function(const std::string &name) 
     return find_in_context(env, name);
 }
 
-void Interpreter::set_variable(const std::string &name, const EvaluatedExpression &expression) {
-    variables.insert(std::make_pair(name, expression));
+void Interpreter::set_variable(VariableContext &context, const std::string &name, const EvaluatedExpression &expression) {
+    context.insert(std::make_pair(name, expression));
 }
 
 EvaluatedExpression Interpreter::apply(const EvaluatedExpression &applicative, const std::vector<EvaluatedExpression> &args) {
@@ -155,20 +155,20 @@ EvaluatedExpression Interpreter::define(const std::vector<Expression> &input_arg
 
     auto definition = input_args[1];
     if (definition.is_leaf()) {
-        return define_variable(definition, input_args[2]);
+        return define_variable(variables, definition, input_args[2]);
     } else {
         std::vector<Expression> args(input_args.cbegin() + 2, input_args.cend());
         return define_function(definition, args);
     }
 }
 
-EvaluatedExpression Interpreter::define_variable(const Expression &lhs, const Expression &rhs) {
+EvaluatedExpression Interpreter::define_variable(VariableContext &context, const Expression &lhs, const Expression &rhs) {
     auto variable_name = eval(lhs.get_value());
     if (variable_name.is_number()) {
         throw eval_error::ExpectedSymbolicArg("define", variable_name.get_number());
     }
 
-    set_variable(variable_name.get_symbol(), eval(rhs));
+    set_variable(context, variable_name.get_symbol(), eval(rhs));
 
     return EvaluatedExpression {variable_name};
 }

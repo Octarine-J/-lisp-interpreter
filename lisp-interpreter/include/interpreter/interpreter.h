@@ -11,12 +11,13 @@
 
 using LispFunctionArgs = std::vector<EvaluatedExpression>;
 using LispFunction = std::function<EvaluatedExpression(LispFunctionArgs args)>;
+using VariableContext = std::map<std::string, EvaluatedExpression>;
 
 class Interpreter {
 private:
     Parser parser;
     std::map<std::string, LispFunction> env;
-    std::map<std::string, EvaluatedExpression> variables;
+    VariableContext variables;
 
     EvaluatedExpression eval(const Expression &expression);
     static EvaluatedExpression eval_leaf(const std::string &value);
@@ -26,7 +27,7 @@ private:
     void load_core_lib();
 
     std::optional<EvaluatedExpression> find_variable(const std::string &name);
-    void set_variable(const std::string &name, const EvaluatedExpression &expression);
+    static void set_variable(VariableContext &context, const std::string &name, const EvaluatedExpression &expression);
 
     std::optional<LispFunction> find_function(const std::string &name);
     void register_function(const std::string &name, LispFunction function);
@@ -34,7 +35,7 @@ private:
     EvaluatedExpression apply(const EvaluatedExpression &applicative, const std::vector<EvaluatedExpression> &args);
 
     EvaluatedExpression define(const std::vector<Expression> &input_args);
-    EvaluatedExpression define_variable(const Expression &lhs, const Expression &rhs);
+    EvaluatedExpression define_variable(VariableContext &context, const Expression &lhs, const Expression &rhs);
     EvaluatedExpression define_function(const Expression &lhs, const std::vector<Expression> &args);
 
     template <class V>
