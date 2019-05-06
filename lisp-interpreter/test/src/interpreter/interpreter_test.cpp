@@ -72,5 +72,6 @@ TEST_F(InterpreterTest, DefineTooManyArguments) {
 }
 
 TEST_F(InterpreterTest, DefineFunction) {
-    EXPECT_THAT(eval("(define (square x) (x * x))"), Eq("square"));
+    EXPECT_THAT(eval("(define (square x) (* x x))"), Eq("square"));
+    EXPECT_THAT(eval_num("(square 21)"), Eq(441));
 }

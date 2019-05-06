@@ -2,7 +2,7 @@
 #include "interpreter/eval_error.h"
 
 void Interpreter::load_core_lib() {
-    register_function("+", [this](LispFunctionArgs args) {
+    env.register_function("+", [this](LispFunctionArgs args) {
         if (args.empty()) {
             throw eval_error::RequiredAtLeastOneArg("+");
         }
@@ -17,7 +17,7 @@ void Interpreter::load_core_lib() {
         return EvaluatedExpression {result};
     });
 
-    register_function("*", [this](LispFunctionArgs args) {
+    env.register_function("*", [this](LispFunctionArgs args) {
         if (args.empty()) {
             throw eval_error::RequiredAtLeastOneArg("*");
         }
@@ -32,7 +32,7 @@ void Interpreter::load_core_lib() {
         return EvaluatedExpression {result};
     });
 
-    register_function("-", [this](LispFunctionArgs args) {
+    env.register_function("-", [this](LispFunctionArgs args) {
         if (args.empty()) {
             throw eval_error::RequiredAtLeastOneArg("-");
         }
@@ -47,7 +47,7 @@ void Interpreter::load_core_lib() {
         return EvaluatedExpression {result};
     });
 
-    register_function("/", [this](LispFunctionArgs args) {
+    env.register_function("/", [this](LispFunctionArgs args) {
         if (args.empty()) {
             throw eval_error::RequiredAtLeastOneArg("/");
         }
@@ -67,11 +67,6 @@ void Interpreter::load_core_lib() {
 }
 
 
-void Interpreter::register_function(const std::string &name, LispFunction function) {
-    env.insert(std::make_pair(name, function));
-}
-
-
 std::vector<double> Interpreter::to_numeric_args(const std::string &function_name, const LispFunctionArgs &args) const {
     std::vector<double> result;
     result.reserve(args.size());
@@ -86,16 +81,13 @@ std::vector<double> Interpreter::to_numeric_args(const std::string &function_nam
     return result;
 }
 
-std::optional<EvaluatedExpression> Interpreter::find_variable(const std::string &name) {
-    return find_in_context(variables, name);
+std::optional<EvaluatedExpression> Interpreter::find_variable(const std::string &name, const Context &local_context) const {
+    auto result = env.find_variable(name);
+    return result.has_value() ? result : local_context.find_variable(name);
 }
 
-std::optional<LispFunction> Interpreter::find_function(const std::string &name) {
-    return find_in_context(env, name);
-}
-
-void Interpreter::set_variable(VariableContext &context, const std::string &name, const EvaluatedExpression &expression) {
-    context.insert(std::make_pair(name, expression));
+std::optional<LispFunction> Interpreter::find_function(const std::string &name) const {
+    return env.find_function(name);
 }
 
 EvaluatedExpression Interpreter::apply(const EvaluatedExpression &applicative, const std::vector<EvaluatedExpression> &args) {
@@ -114,9 +106,9 @@ EvaluatedExpression Interpreter::apply(const EvaluatedExpression &applicative, c
     }
 }
 
-EvaluatedExpression Interpreter::eval(const Expression &expression) {
+EvaluatedExpression Interpreter::eval(const Expression &expression, Context local_context) {
     if (expression.is_leaf()) {
-        auto variable = find_variable(expression.get_value());
+        auto variable = find_variable(expression.get_value(), local_context);
         if (variable.has_value()) {
             return variable.value();
         }
@@ -125,14 +117,14 @@ EvaluatedExpression Interpreter::eval(const Expression &expression) {
     }
 
     auto children = expression.get_children();
-    auto applicative = eval(children[0]);
+    auto applicative = eval(children[0], local_context);
 
     if (is_define(applicative)) {
-        return define(children);
+        return define(children, local_context);
     } else {
         std::vector<EvaluatedExpression> args;
-        for (int i = 1; i < children.size(); ++i) {
-            args.push_back(eval(children[i]));
+        for (auto i = 1u; i < children.size(); ++i) {
+            args.push_back(eval(children[i], local_context));
         }
 
         return apply(applicative, args);
@@ -147,33 +139,35 @@ EvaluatedExpression Interpreter::eval_leaf(const std::string &value) {
     }
 }
 
-EvaluatedExpression Interpreter::define(const std::vector<Expression> &input_args) {
+EvaluatedExpression Interpreter::define(const std::vector<Expression> &input_args, const Context &local_context) {
     if (input_args.size() != 3) {
-        // expected (define name expr)
+        // expected: (define lhs rhs), for example: (define x 3) or (define (add x y) (x + y))
         throw eval_error::RequiredNumArgsExactly("define", 2);
     }
 
-    auto definition = input_args[1];
-    if (definition.is_leaf()) {
-        return define_variable(variables, definition, input_args[2]);
+    auto lhs = input_args[1];
+    auto rhs = input_args[2];
+
+    if (lhs.is_leaf()) {
+        auto variable_value = eval(input_args[2], local_context);
+        return define_variable(env, lhs, variable_value);
     } else {
-        std::vector<Expression> args(input_args.cbegin() + 2, input_args.cend());
-        return define_function(definition, args);
+        return define_function(lhs, rhs);
     }
 }
 
-EvaluatedExpression Interpreter::define_variable(VariableContext &context, const Expression &lhs, const Expression &rhs) {
+EvaluatedExpression Interpreter::define_variable(Context &context, const Expression &lhs, const EvaluatedExpression &rhs) {
     auto variable_name = eval(lhs.get_value());
     if (variable_name.is_number()) {
         throw eval_error::ExpectedSymbolicArg("define", variable_name.get_number());
     }
 
-    set_variable(context, variable_name.get_symbol(), eval(rhs));
+    context.set_variable(variable_name.get_symbol(), rhs);
 
     return EvaluatedExpression {variable_name};
 }
 
-EvaluatedExpression Interpreter::define_function(const Expression &lhs, const std::vector<Expression> &args) {
+EvaluatedExpression Interpreter::define_function(const Expression &lhs, Expression rhs) {
     auto lhs_children = lhs.get_children();
     if (lhs_children.size() <= 1) {
         throw eval_error::RequiredAtLeastOneArg("define (function)");
@@ -187,12 +181,25 @@ EvaluatedExpression Interpreter::define_function(const Expression &lhs, const st
 
     auto function_name = lhs_children[0].get_value();
 
-    register_function(function_name, [this](LispFunctionArgs args) {
+    env.register_function(function_name, [this,
+                                          function_name,
+                                          function_args = std::vector<Expression>(lhs_children.cbegin() + 1, lhs_children.cend()),
+                                          function_body = std::move(rhs)](LispFunctionArgs args) {
+        auto num_function_args = function_args.size();
+        if (args.size() != num_function_args) {
+            throw eval_error::RequiredNumArgsExactly(function_name, num_function_args);
+        }
 
+        Context local_context;
+        for (auto i = 0u; i < num_function_args; ++i) {
+            local_context.set_variable(function_args[i].get_value(), args[i]);
+        }
 
-        return EvaluatedExpression {1};
+//        local_context.set_variable()
 
-        //return eval(args[2]);
+        //return EvaluatedExpression {1};
+
+        return eval(function_body, local_context);
     });
 
     return EvaluatedExpression {function_name};
