@@ -74,4 +74,29 @@ TEST_F(InterpreterTest, DefineTooManyArguments) {
 TEST_F(InterpreterTest, DefineFunction) {
     EXPECT_THAT(eval("(define (square x) (* x x))"), Eq("square"));
     EXPECT_THAT(eval_num("(square 21)"), Eq(441));
+    EXPECT_THAT(eval_num("(square 3)"), Eq(9));
+}
+
+TEST_F(InterpreterTest, DefineFunctionAndEvaluateExpression) {
+    EXPECT_THAT(eval("(define (square x) (* x x))"), Eq("square"));
+    EXPECT_THAT(eval_num("(square (+ 2 5))"), Eq(49));
+}
+
+TEST_F(InterpreterTest, DefineFunctionAndEvaluateNestedCall) {
+    EXPECT_THAT(eval("(define (square x) (* x x))"), Eq("square"));
+    EXPECT_THAT(eval_num("(square (square 3))"), Eq(81));
+}
+
+TEST_F(InterpreterTest, DefineFunctionAndUseThisFunctionInAnotherDefinition) {
+    EXPECT_THAT(eval("(define (square x) (* x x))"), Eq("square"));
+
+    EXPECT_THAT(eval("(define (sum-of-squares x y)\n"
+                     "(+ (square x) (square y)))"), Eq("sum-of-squares"));
+
+    EXPECT_THAT(eval_num("(sum-of-squares 3 4)"), Eq(25));
+
+    EXPECT_THAT(eval("(define (f a)\n"
+                     "(sum-of-squares (+ a 1) (* a 2)))"), Eq("f"));
+
+    EXPECT_THAT(eval_num("(f 5)"), Eq(136));
 }
