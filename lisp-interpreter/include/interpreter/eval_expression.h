@@ -1,6 +1,8 @@
 #ifndef LISP_INTERPRETER_EVAL_EXPRESSION_H
 #define LISP_INTERPRETER_EVAL_EXPRESSION_H
 
+#include <string>
+
 enum class EvaluatedExpressionType {
     Number, Symbol
 };
@@ -36,7 +38,7 @@ public:
         return symbol;
     }
 
-    std::string to_string() {
+    std::string to_string() const {
         switch (type) {
             case EvaluatedExpressionType::Number:
                 return std::to_string(number);

@@ -2,6 +2,7 @@
 #define LISP_INTERPRETER_EVAL_ERROR_H
 
 #include "parser/expression.h"
+#include "interpreter/eval_expression.h"
 
 namespace eval_error {
     class EvalError : public std::runtime_error {
@@ -19,13 +20,13 @@ namespace eval_error {
         }
     };
 
-    class NumberIsNotApplicative : public EvalError {
+    class UnacceptableApplicative : public EvalError {
     public:
-        explicit NumberIsNotApplicative(double number) :
-            EvalError(get_description(number)) {}
+        explicit UnacceptableApplicative(const EvaluatedExpression &expression) :
+            EvalError(get_description(expression)) {}
 
-        static std::string get_description(double number) {
-            return std::string("A number '") + std::to_string(number) + "' cannot be used as a function";
+        static std::string get_description(const EvaluatedExpression &expression) {
+            return std::string("A non-symbol '") + expression.to_string() + "' cannot be used as a function";
         }
     };
 

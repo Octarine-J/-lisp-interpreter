@@ -2,7 +2,9 @@ set(SOURCES
         src/parser/expression.cpp
         src/parser/parser.cpp
         src/interpreter/interpreter.cpp
-        src/parser/tokenizer.cpp)
+        src/parser/tokenizer.cpp
+        src/interpreter/interpreter_stdlib.cpp
+        src/interpreter/args.cpp)
 
 add_library(lisp_interpreter ${SOURCES})
 

@@ -1,85 +1,7 @@
 #include "interpreter/interpreter.h"
 #include "interpreter/eval_error.h"
+#include "interpreter/args.h"
 
-void Interpreter::load_core_lib() {
-    env.register_function("+", [this](LispFunctionArgs args) {
-        if (args.empty()) {
-            throw eval_error::RequiredAtLeastOneArg("+");
-        }
-
-        auto numeric_args = this->to_numeric_args("+", args);
-        double result = numeric_args[0];
-
-        for (auto arg = numeric_args.begin() + 1; arg < numeric_args.end(); ++arg) {
-            result += *arg;
-        }
-
-        return EvaluatedExpression {result};
-    });
-
-    env.register_function("*", [this](LispFunctionArgs args) {
-        if (args.empty()) {
-            throw eval_error::RequiredAtLeastOneArg("*");
-        }
-
-        auto numeric_args = this->to_numeric_args("*", args);
-        double result = numeric_args[0];
-
-        for (auto arg = numeric_args.begin() + 1; arg < numeric_args.end(); ++arg) {
-            result *= *arg;
-        }
-
-        return EvaluatedExpression {result};
-    });
-
-    env.register_function("-", [this](LispFunctionArgs args) {
-        if (args.empty()) {
-            throw eval_error::RequiredAtLeastOneArg("-");
-        }
-
-        auto numeric_args = this->to_numeric_args("-", args);
-        double result = numeric_args[0];
-
-        for (auto arg = numeric_args.begin() + 1; arg < numeric_args.end(); ++arg) {
-            result -= *arg;
-        }
-
-        return EvaluatedExpression {result};
-    });
-
-    env.register_function("/", [this](LispFunctionArgs args) {
-        if (args.empty()) {
-            throw eval_error::RequiredAtLeastOneArg("/");
-        }
-
-        auto numeric_args = this->to_numeric_args("/", args);
-        double result = numeric_args[0];
-        double arg_product = 1;
-
-        for (auto arg = numeric_args.begin() + 1; arg < numeric_args.end(); ++arg) {
-            arg_product *= *arg;
-        }
-
-        result = result / arg_product;
-
-        return EvaluatedExpression {result};
-    });
-}
-
-
-std::vector<double> Interpreter::to_numeric_args(const std::string &function_name, const LispFunctionArgs &args) const {
-    std::vector<double> result;
-    result.reserve(args.size());
-
-    for (const auto &arg : args) {
-        if (arg.is_symbol()) {
-            throw eval_error::ExpectedNumericArg(function_name, arg.get_symbol());
-        }
-        result.push_back(arg.get_number());
-    }
-
-    return result;
-}
 
 std::optional<EvaluatedExpression> Interpreter::find_variable(const std::string &name, const Context &local_context) const {
     auto result = env.find_variable(name);
@@ -90,22 +12,25 @@ std::optional<LispFunction> Interpreter::find_function(const std::string &name) 
     return env.find_function(name);
 }
 
-EvaluatedExpression Interpreter::apply(const EvaluatedExpression &applicative, const std::vector<EvaluatedExpression> &args) {
-    if (applicative.is_number()) {
-        throw eval_error::NumberIsNotApplicative(applicative.get_number());
-    }
-
+LispFunction Interpreter::find_function(const EvaluatedExpression &applicative) const {
     auto function_name = applicative.get_symbol();
     auto function = find_function(function_name);
 
     if (function.has_value()) {
-        auto f = function.value();
-        return f(args);
+        return function.value();
     } else {
         throw eval_error::UnknownApplicative(function_name);
     }
 }
 
+EvaluatedExpression Interpreter::apply(const EvaluatedExpression &applicative, const std::vector<EvaluatedExpression> &args) {
+    require_symbolic_arg(applicative);
+
+    auto f = find_function(applicative);
+    return f(args);
+}
+
+// Applicative order
 EvaluatedExpression Interpreter::eval(const Expression &expression, Context local_context) {
     if (expression.is_leaf()) {
         auto variable = find_variable(expression.get_value(), local_context);
