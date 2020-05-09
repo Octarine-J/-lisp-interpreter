@@ -5,7 +5,7 @@ std::vector<double> to_numeric_args(const std::string &function_name, const Lisp
     result.reserve(args.size());
 
     for (const auto &arg : args) {
-        if (not arg.is_number()) {
+        if (!arg.is_number()) {
             throw eval_error::ExpectedNumericArg(function_name, arg.to_string());
         }
         result.push_back(arg.get_number());
@@ -19,7 +19,7 @@ std::pair<double, std::vector<double>> to_numeric_args_head_tail(const std::stri
 }
 
 void require_symbolic_arg(const EvaluatedExpression &expression) {
-    if (not expression.is_symbol()) {
+    if (!expression.is_symbol()) {
         throw eval_error::UnacceptableApplicative(expression);
     }
 }

@@ -1,6 +1,8 @@
 #ifndef LISP_INTERPRETER_EVAL_ERROR_H
 #define LISP_INTERPRETER_EVAL_ERROR_H
 
+#include <stdexcept>
+
 #include "parser/expression.h"
 #include "interpreter/eval_expression.h"
 

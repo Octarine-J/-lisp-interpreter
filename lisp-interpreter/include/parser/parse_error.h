@@ -1,6 +1,7 @@
 #ifndef LISP_INTERPRETER_PARSE_ERROR_H
 #define LISP_INTERPRETER_PARSE_ERROR_H
 
+#include <stdexcept>
 #include <string>
 
 enum class ParseErrorType {

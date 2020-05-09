@@ -4,7 +4,7 @@
 #include <string>
 
 bool is_command(const std::string &input) {
-    return (input.size() >= 2) and input[0] == ':';
+    return (input.size() >= 2) && input[0] == ':';
 }
 
 std::string as_command(const std::string &input) {
@@ -12,7 +12,7 @@ std::string as_command(const std::string &input) {
 }
 
 bool should_exit(const std::string &command) {
-    return command == "q" or command == "quit";
+    return command == "q" || command == "quit";
 }
 
 #endif

@@ -1,6 +1,7 @@
 #ifndef LISP_INTERPRETER_CONTEXT_H
 #define LISP_INTERPRETER_CONTEXT_H
 
+#include <optional>
 
 class Context {
 private:

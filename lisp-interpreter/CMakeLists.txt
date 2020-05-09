@@ -8,7 +8,12 @@ set(SOURCES
 
 add_library(lisp_interpreter ${SOURCES})
 
-SET(CMAKE_EXE_LINKER_FLAGS "-static")
+if (MSVC)
+    
+else()
+    SET(CMAKE_EXE_LINKER_FLAGS "-static")
+endif()
+
 add_executable(lisp_interpreter_repl src/main.cpp)
 target_link_libraries(lisp_interpreter_repl lisp_interpreter)
 
