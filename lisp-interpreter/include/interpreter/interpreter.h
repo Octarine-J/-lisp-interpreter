@@ -21,9 +21,9 @@ private:
 
     void load_core_lib();
 
-    std::optional<EvaluatedExpression> find_variable(const std::string &name, const Context &local_context) const;
+    [[nodiscard]] std::optional<EvaluatedExpression> find_variable(const std::string &name, const Context &local_context) const;
 
-    std::optional<LispFunction> find_function(const std::string &name) const;
+    [[nodiscard]] std::optional<LispFunction> find_function(const std::string &name) const;
     LispFunction find_function(const EvaluatedExpression &applicative) const;
 
     EvaluatedExpression apply(const EvaluatedExpression &applicative, const std::vector<EvaluatedExpression> &args);

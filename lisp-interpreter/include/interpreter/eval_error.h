@@ -6,6 +6,8 @@
 #include "parser/expression.h"
 #include "interpreter/eval_expression.h"
 
+using namespace std::string_literals;
+
 namespace eval_error {
     class EvalError : public std::runtime_error {
     public:
@@ -18,7 +20,7 @@ namespace eval_error {
             EvalError(get_description(symbol)) {}
 
         static std::string get_description(const std::string &symbol) {
-            return std::string("Unknown function: '") + symbol + "'";
+            return "Unknown function: '"s + symbol + "'";
         }
     };
 
@@ -28,7 +30,7 @@ namespace eval_error {
             EvalError(get_description(expression)) {}
 
         static std::string get_description(const EvaluatedExpression &expression) {
-            return std::string("A non-symbol '") + expression.to_string() + "' cannot be used as a function";
+            return "A non-symbol '"s + expression.to_string() + "' cannot be used as a function";
         }
     };
 
@@ -38,7 +40,7 @@ namespace eval_error {
             EvalError(get_description(function_name, symbol)) {}
 
         static std::string get_description(const std::string &function_name, const std::string &symbol) {
-            return std::string("Function '") + function_name + "' expected a numeric argument, found '" + symbol + "'";
+            return "Function '"s + function_name + "' expected a numeric argument, found '" + symbol + "'";
         }
     };
 
@@ -48,7 +50,7 @@ namespace eval_error {
             EvalError(get_description(function_name, actual_arg)) {}
 
         static std::string get_description(const std::string &function_name, double actual_arg) {
-            return std::string("Function '") + function_name + "' expected a symbolic argument, found number '"
+            return "Function '"s + function_name + "' expected a symbolic argument, found number '"
                 + std::to_string(actual_arg) + "'";
         }
     };
@@ -59,7 +61,7 @@ namespace eval_error {
             EvalError(get_description(function_name)) {}
 
         static std::string get_description(const std::string &function_name) {
-            return std::string("Function '") + function_name + "' requires at least one argument";
+            return "Function '"s + function_name + "' requires at least one argument";
         }
     };
 
@@ -69,7 +71,7 @@ namespace eval_error {
             EvalError(get_description(function_name, num_args)) {}
 
         static std::string get_description(const std::string &function_name, int num_args) {
-            return std::string("Function '") + function_name + "' requires exactly " + std::to_string(num_args) + " arguments";
+            return "Function '"s + function_name + "' requires exactly " + std::to_string(num_args) + " arguments";
         }
     };
 
@@ -79,7 +81,7 @@ namespace eval_error {
             EvalError(get_description(expression)) {}
 
         static std::string get_description(const Expression &expression) {
-            return std::string("Expected a single token, found expression '") + to_string(expression) + "'";
+            return "Expected a single token, found expression '"s + to_string(expression) + "'";
         }
     };
 
